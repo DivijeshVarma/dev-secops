@@ -9,7 +9,7 @@ FROM alpine:3.19
 RUN apk add --no-cache nginx
 
 # Create a non-root user and group
-RUN addgroup -S nginx && adduser -S nginx -G nginx
+RUN addgroup -S nginx -G nginx
 
 # Copy default Nginx configuration
 COPY --from=builder /etc/nginx/nginx.conf /etc/nginx/nginx.conf
