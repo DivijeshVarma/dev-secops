@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notesapp-deployment-3000
+  name: notesapp-deployment
 spec:
   selector:
     matchLabels:
@@ -17,4 +17,4 @@ spec:
         image: notes-app-image
         env:
         - name: "PORT"
-          value: "3000"
+          value: "8080"
