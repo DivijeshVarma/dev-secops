@@ -15,17 +15,15 @@ steps:
      - |
        gcloud artifacts docker images scan us-central1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID \
        --format='value(response.scan)' > /workspace/scan_id.txt
-   steps:
    - id: List Vulnerability Counts
      name: 'gcr.io/cloud-builders/gcloud'
      entrypoint: /bin/bash
      args:
      - -c
      - |
-       echo "--- Vulnerability Scan Results ---"
+       echo "Results" 
        gcloud artifacts docker images list-vulnerabilities $(cat /workspace/scan_id.txt) \
        --format='value(vulnerability.effectiveSeverity)' | sort | uniq -c || true
-       echo "-----------------------------------"
    - id: Check For Vulnerabilities within the Image
      name: 'gcr.io/cloud-builders/gcloud'
      entrypoint: /bin/bash
