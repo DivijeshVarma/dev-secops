@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: my-container
-          image: asia-south1-docker.pkg.dev/divijesh-project/pipeline/app1-image #Artifact registry path
+          image: my-app-image
           ports:
             - containerPort: 80
 
@@ -30,4 +30,3 @@ spec:
       port: 80
       targetPort: 80
   type: LoadBalancer
-
