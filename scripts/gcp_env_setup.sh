@@ -36,6 +36,12 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com" --role='roles/clouddeploy.admin'
 
+# Grant the Cloud Build service account the Cloud KMS CryptoKey Signer/Verifier role.
+# This role is required for signing attestations with the KMS key.
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+    --member="serviceAccount:${CLOUD_BUILD_SA_EMAIL}" \
+    --role="roles/cloudkms.signerVerifier"
+
 #Add the following: "Artifact Registry Reader", "Cloud Deploy Runner" and "Kubernetes Engine Admin" IAM Role to the Compute Engine Service Account
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" --role='roles/artifactregistry.reader'

@@ -1,4 +1,4 @@
-# multi-stage build
+# multi-stage builds
 FROM cgr.dev/chainguard/python:latest-dev AS build
 
 # install dependencies in a venv
