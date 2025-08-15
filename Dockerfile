@@ -1,28 +1,26 @@
-# Stage 1: Builder
-# Use a slim-bullseye base image for a smaller footprint
+# Stage 1: Build the application dependencies
 FROM python:3.8-slim-bullseye AS builder
 
-# Install build dependencies if needed, and remove them in the final image
-# This ensures a minimal final image
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 2: Final Image
-# Use a distroless base image for maximum security
-# This image contains only your app and its runtime dependencies
-FROM python:3.8-slim-bullseye
+# Install dependencies into a separate directory
+RUN pip install --no-cache-dir --upgrade -r requirements.txt --target=/app/dependencies
 
-# Create a non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-USER appuser
+# Stage 2: Create the final, minimal production image
+# Using a distroless base image for maximum security
+FROM gcr.io/distroless/python3-debian11
 
-# Copy your application files and installed packages
+# Set up the working directory and user
 WORKDIR /app
-COPY --from=builder /app .
+USER nonroot
 
-# Expose the correct port
-EXPOSE 8080
+# Copy the application code and dependencies from the builder stage
+COPY --from=builder /app/dependencies /app/dependencies
+COPY app.py .
+
+# Add the dependencies directory to the Python path
+ENV PYTHONPATH=/app/dependencies
 
 # The command to run your application
-CMD ["python", "app.py"]
+CMD ["app.py"]
