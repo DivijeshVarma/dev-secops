@@ -1,24 +1,10 @@
-# multi-stage builds
-FROM cgr.dev/chainguard/python:latest-dev AS build
+FROM python:3.8
 
-# install dependencies in a venv
-RUN python -m venv /home/nonroot/venv
-ENV PATH="/home/nonroot/venv/bin:$PATH"
-WORKDIR /home/nonroot
-COPY . /home/nonroot
+EXPOSE 8080
+WORKDIR /app
+
+COPY . ./
+
 RUN pip install -r requirements.txt
 
-# run image
-FROM cgr.dev/chainguard/python:latest
-
-USER 65532
-WORKDIR /home/nonroot
-COPY --chown=nonroot:nonroot --from=build /home/nonroot /home/nonroot
-
-# run container as nonroot user
-ENV PATH="/home/nonroot/venv/bin:$PATH"
-ENV PORT 8080
-ENV GUNICORN_CMD_ARGS="--workers 2 --threads 4 -b 0.0.0.0:8080 --chdir /home/nonroot"
-# Run the web service on container startup.
-
-ENTRYPOINT [ "gunicorn", "app:app" ]
+CMD ["python", "app.py"]
