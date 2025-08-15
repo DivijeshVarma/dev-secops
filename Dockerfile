@@ -1,27 +1,28 @@
-# Stage 1: Build a secure, minimal Nginx image
-FROM nginx:1.27.0-alpine AS builder
+# Stage 1: Builder
+# Use a slim-bullseye base image for a smaller footprint
+FROM python:3.8-slim-bullseye AS builder
 
-# Stage 2: Create the final image with a non-root user
-FROM alpine:3.19
+# Install build dependencies if needed, and remove them in the final image
+# This ensures a minimal final image
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Nginx and other necessary packages
-# Use apk's --no-cache flag to reduce image size
-RUN apk add --no-cache nginx
+# Stage 2: Final Image
+# Use a distroless base image for maximum security
+# This image contains only your app and its runtime dependencies
+FROM python:3.8-slim-bullseye
 
-# Create a non-root user and group
-RUN addgroup -S nginx -G nginx
+# Create a non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+USER appuser
 
-# Copy default Nginx configuration
-COPY --from=builder /etc/nginx/nginx.conf /etc/nginx/nginx.conf
+# Copy your application files and installed packages
+WORKDIR /app
+COPY --from=builder /app .
 
-# Set the working directory
-WORKDIR /var/www/html
-
-# Change the user to the non-root user
-USER nginx
-
-# Expose the port Nginx will listen on
+# Expose the correct port
 EXPOSE 8080
 
-# The command to run Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# The command to run your application
+CMD ["python", "app.py"]
