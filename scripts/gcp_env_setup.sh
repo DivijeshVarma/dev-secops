@@ -21,6 +21,7 @@ PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 PROJECT_NUMBER=$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
+APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
 
 #Create the following custom IAM role
 gcloud iam roles create cicdblogrole --project=${PROJECT_ID} \
