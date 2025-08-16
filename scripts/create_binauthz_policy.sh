@@ -1,5 +1,5 @@
 #Project variables for project and the GKE environments
-LOCATION=us-central1
+LOCATION=asia-south1
 PROJECT_ID=devopc
 ATTESTOR_ID=cb-attestor
 GKE_Test_Cluster_Name=test
