@@ -1,6 +1,6 @@
 #Project variables for project and the GKE environments
 LOCATION=us-central1
-PROJECT_ID=cicd-469203
+PROJECT_ID=devopc
 ATTESTOR_ID=cb-attestor
 GKE_Test_Cluster_Name=test
 GKE_Staging_Cluster_Name=staging

@@ -32,10 +32,11 @@ gcloud iam roles create cicdblogrole --project=${PROJECT_ID} \
 
 #Add the newly created custom role, and "Cloud Deploy Admin" to the Cloud Build Service Account
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
-    --member="serviceAccount:${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com" --role="projects/${PROJECT_ID}/roles/cicdblogrole"
+    --member="serviceAccount:${CLOUD_BUILD_SA_EMAIL}" \
+    --role="projects/${PROJECT_ID}/roles/cicdblogrole"
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
-    --member="serviceAccount:${APP_SPOT}" \
+    --member="serviceAccount:${CLOUD_BUILD_SA_EMAIL}" \
     --role='roles/clouddeploy.admin'
 
 # Grant the Cloud Build service account the Cloud KMS CryptoKey Signer/Verifier role.
