@@ -17,8 +17,8 @@ gcloud services enable cloudfunctions.googleapis.com
 
 #GCP Project Variables
 LOCATION=asia-south1
-PROJECT_ID=$(gcloud config list --format 'value(core.project)')
-PROJECT_NUMBER=$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')
+PROJECT_ID=cicd-469403
+PROJECT_NUMBER=548157540567
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
@@ -142,7 +142,7 @@ gcloud container binauthz attestors list
 #Create Artifact Registry Repository where images will be stored
 gcloud artifacts repositories create test-repo \
     --repository-format=Docker \
-    --location=asia-south1 \
+    --location=$LOCATION \
     --description="Artifact Registry for GCP DevSecOps CICD Blog" \
     --async
 

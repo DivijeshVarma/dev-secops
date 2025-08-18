@@ -5,8 +5,8 @@ steps:
     args:
       - -c
       - |
-        docker build -t asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID -f ./Dockerfile . &&
-        docker image inspect asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID
+        docker build -t $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID -f ./Dockerfile . &&
+        docker image inspect $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID
         
   - id: Scan The Image
     name: 'gcr.io/cloud-builders/gcloud'
@@ -14,7 +14,7 @@ steps:
     args:
       - -c
       - |
-        gcloud artifacts docker images scan asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID \
+        gcloud artifacts docker images scan $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID \
         --format='value(response.scan)' > /workspace/scan_id.txt
 
   - id: List Vulnerability Counts
@@ -43,7 +43,7 @@ steps:
     args:
       - -c
       - |
-        docker push asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID
+        docker push $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID
         
   - id: Capture Image Digest Information
     name: 'gcr.io/cloud-builders/gcloud'
@@ -51,7 +51,7 @@ steps:
     args:
       - -c
       - |
-        gcloud container images describe asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID \
+        gcloud container images describe $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID \
         --format='get(image_summary.digest)' > /workspace/digest.txt
         
   - id: Change permissions on create_binauthz_policy.sh
@@ -72,16 +72,16 @@ steps:
     args:
       - -c
       - |
-        gcloud deploy releases create r-$REVISION_ID --project=$PROJECT_ID --region=asia-south1 --delivery-pipeline=ci-cd-test --images=my-app-image=asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd@$(cat /workspace/digest.txt)
+        gcloud deploy releases create r-$REVISION_ID --project=$PROJECT_ID --region=$LOCATION --delivery-pipeline=ci-cd-test --images=my-app-image=$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd@$(cat /workspace/digest.txt)
         
   - id: Promote/deploy cloud deploy release to next stage ie staging
     name: gcr.io/cloud-builders/gcloud
-    args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=asia-south1','--delivery-pipeline=ci-cd-test', '--to-target=staging']
+    args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=staging']
     
   - id: Promote/deploy cloud deploy release to next stage ie prod
     name: gcr.io/cloud-builders/gcloud
-    args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=asia-south1','--delivery-pipeline=ci-cd-test', '--to-target=prod']
-images: ['asia-south1-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID']
+    args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=prod']
+images: ['$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$REVISION_ID']
 
 options:
   logging: CLOUD_LOGGING_ONLY
