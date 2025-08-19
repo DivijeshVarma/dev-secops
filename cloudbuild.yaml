@@ -83,10 +83,11 @@ steps:
         # Wait up to 5 minutes for the external IP to be assigned.
         # This is crucial because the IP isn't available immediately after deployment.
         for i in $(seq 1 30); do
-          export SERVICE_IP=$(kubectl get service my-service -n default --output=jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          SERVICE_IP=$(kubectl get service my-service -n default --output=jsonpath='{.status.loadBalancer.ingress[0].ip}')
           if [[ -n "${SERVICE_IP}" ]]; then
             echo "Load Balancer IP found: ${SERVICE_IP}"
-            echo "export SERVICE_IP=${SERVICE_IP}" > /workspace/env.sh
+            # Write the IP directly to a file without 'export' or a variable name
+            echo "${SERVICE_IP}" > /workspace/service_ip.txt
             exit 0
           fi
           echo "Waiting for Load Balancer IP... (attempt $i of 30)"
@@ -99,9 +100,10 @@ steps:
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: /bin/bash
     args:
-      - -c
+      - -c'
       - |
-        source /workspace/env.sh
+        # Read the IP from the file and store it in a local shell variable for this step
+        TARGET_IP=$(cat /workspace/service_ip.txt)
 
         if [[ -z "${SERVICE_IP}" ]]; then
           echo "Error: Load Balancer IP not found. Skipping Web Security Scan."
@@ -109,13 +111,13 @@ steps:
         fi
 
         # Construct the full URL for the scanner.
-        TARGET_URL="http://${SERVICE_IP}"
+        TARGET_URL="http://${TARGET_IP}"
 
         # Replace 'my-cloud-build-scan' with the name of your pre-configured scan.
         SCAN_CONFIG_NAME="projects/${PROJECT_ID}/scanConfigs/my-cloud-build-scan"
 
         echo "Starting Web Security Scanner run for URL: ${TARGET_URL}"
-        gcloud alpha web-security-scanner scan-configs start ${SCAN_CONFIG_NAME}
+        gcloud alpha web-security-scanner scan-configs start ${SCAN_CONFIG_NAME} --scan-url="${TARGET_URL}"
 
         echo "Web Security Scanner run triggered. Check findings in Security Command Center."
         
