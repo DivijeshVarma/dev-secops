@@ -100,7 +100,7 @@ steps:
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: /bin/bash
     args:
-      - -c'
+      - -c
       - |
         # Read the IP from the file and store it in a local shell variable for this step
         TARGET_IP=$(cat /workspace/service_ip.txt)
