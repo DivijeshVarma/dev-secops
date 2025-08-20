@@ -74,17 +74,6 @@ steps:
       - |
         gcloud deploy releases create r-$REVISION_ID --project=$PROJECT_ID --region=$LOCATION --delivery-pipeline=ci-cd-test --images=my-app-image=$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd@$(cat /workspace/digest.txt)
 
-  # Add a step to get the public URL of your test deployment
-  - id: Get Test Deployment URL
-    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
-    args:
-      - -c
-      - |
-        # This example assumes you are using an Ingress with a fixed URL or a LoadBalancer IP.
-        # You need to replace this with the actual URL of your test environment.
-        echo "https://infotechnologies.org" > /workspace/test_url.txt
-
   # Add a step to run the web security scan
   - id: Run Web Security Scan
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -92,8 +81,7 @@ steps:
     args:
       - -c
       - |
-        URL=$(cat /workspace/test_url.txt)
-        gcloud web-security-scanner scans run --project=$PROJECT_ID --start-urls=$URL --display-name="cloud-build-scan-$BUILD_ID"
+        gcloud web-security-scanner scans run --project=$PROJECT_ID --start-urls='http://infotechnologies.org' --display-name="cloud-build-scan-$BUILD_ID"
 
   - id: Promote/deploy cloud deploy release to next stage ie staging
     name: gcr.io/cloud-builders/gcloud
