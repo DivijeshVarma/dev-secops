@@ -73,8 +73,11 @@ steps:
       - -c
       - |
         # Get the external IP of the ingress-nginx service
-        INGRESS_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        echo "INGRESS_IP=${INGRESS_IP}" > /workspace/ingress_ip.txt
+        # Write the IP address directly to a file
+        kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}' > /workspace/ingress_ip.txt
+        # Read the IP address from the file and use it in the next commands
+        INGRESS_IP=$(cat /workspace/ingress_ip.txt)
+
         echo "Extracted Ingress IP: ${INGRESS_IP}"
 
   - id: Update DNS A Record
