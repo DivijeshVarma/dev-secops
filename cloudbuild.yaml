@@ -112,10 +112,9 @@ steps:
     args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=prod']
 images: ['$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG']
     
-  substitutions:
-    _INGRESS_IP: '$(cat /workspace/ingress_ip.txt)'
-  options:
-    dynamicSubstitutions: true  
+substitutions:
+  _INGRESS_IP: '$(cat /workspace/ingress_ip.txt)'
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  dynamicSubstitutions: true  
