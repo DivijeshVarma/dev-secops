@@ -17,8 +17,8 @@ gcloud services enable cloudfunctions.googleapis.com
 
 #GCP Project Variables
 LOCATION=asia-south1
-PROJECT_ID=projectcicds
-PROJECT_NUMBER=203044717012
+PROJECT_ID=cicd5678
+PROJECT_NUMBER=825947679779
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
@@ -191,7 +191,9 @@ gcloud deploy apply --file clouddeploy.yaml --region=$LOCATION --project=$PROJEC
 # Install NGINX Ingress Controller on the 'test' cluster
 gcloud container clusters get-credentials test --region $LOCATION --project $PROJECT_ID
 
-helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+STATIC_IP=$(gcloud compute addresses create ingress-ip --region=$LOCATION --project=$PROJECT_ID --format='value(address)')
+
+helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.loadBalancerIP=$STATIC_IP
 
 # Install NGINX Ingress Controller on the 'staging' cluster
 gcloud container clusters get-credentials staging --region $LOCATION --project $PROJECT_ID
