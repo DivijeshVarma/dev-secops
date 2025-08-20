@@ -163,6 +163,8 @@ gcloud container clusters create test \
     --subnetwork=default \
     --disk-size=20
  
+STATIC_IP=$(gcloud compute addresses create ingress-ip --region=$LOCATION --project=$PROJECT_ID --format='value(address)')
+
 #GKE Cluster for Staging environment
 gcloud container clusters create staging \
     --project=$PROJECT_ID \
@@ -191,7 +193,8 @@ gcloud deploy apply --file clouddeploy.yaml --region=$LOCATION --project=$PROJEC
 # Install NGINX Ingress Controller on the 'test' cluster
 gcloud container clusters get-credentials test --region $LOCATION --project $PROJECT_ID
 
-STATIC_IP=$(gcloud compute addresses create ingress-ip --region=$LOCATION --project=$PROJECT_ID --format='value(address)')
+# Display the static IP address on the screen
+echo "The static IP address created is: $STATIC_IP"
 
 helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.loadBalancerIP=$STATIC_IP
 
