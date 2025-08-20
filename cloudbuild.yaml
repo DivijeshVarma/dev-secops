@@ -115,6 +115,6 @@ images: ['$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSIO
   substitutions:
     _INGRESS_IP: '$(cat /workspace/ingress_ip.txt)'
 
-  options:
-    logging: CLOUD_LOGGING_ONLY
-    dynamicSubstitutions: true  
+options:
+  logging: CLOUD_LOGGING_ONLY
+  dynamicSubstitutions: true  
