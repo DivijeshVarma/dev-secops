@@ -1,6 +1,6 @@
 #Project variables for project and the GKE environments
 LOCATION=asia-south1
-PROJECT_ID=cicd4567
+PROJECT_ID=projectcicds
 ATTESTOR_ID=cb-attestor
 GKE_Test_Cluster_Name=test
 GKE_Staging_Cluster_Name=staging

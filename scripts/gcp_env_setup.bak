@@ -17,8 +17,8 @@ gcloud services enable cloudfunctions.googleapis.com
 
 #GCP Project Variables
 LOCATION=asia-south1
-PROJECT_ID=projectcicds
-PROJECT_NUMBER=203044717012
+PROJECT_ID=cicd4567
+PROJECT_NUMBER=298297513586
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
@@ -187,18 +187,3 @@ gcloud container clusters create prod \
 
 #Create cloud deploy pipeline
 gcloud deploy apply --file clouddeploy.yaml --region=$LOCATION --project=$PROJECT_ID
-
-# Install NGINX Ingress Controller on the 'test' cluster
-gcloud container clusters get-credentials test --region $LOCATION --project $PROJECT_ID
-
-helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
-
-# Install NGINX Ingress Controller on the 'staging' cluster
-gcloud container clusters get-credentials staging --region $LOCATION --project $PROJECT_ID
-
-helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
-
-# Install NGINX Ingress Controller on the 'prod' cluster
-gcloud container clusters get-credentials prod --region $LOCATION --project $PROJECT_ID
-
-helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
