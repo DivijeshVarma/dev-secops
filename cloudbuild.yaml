@@ -7,7 +7,7 @@ steps:
       - |
         docker build -t $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG -f ./Dockerfile . &&
         docker image inspect $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG
-        
+
   - id: Scan The Image
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: /bin/bash
@@ -26,7 +26,7 @@ steps:
         echo "Results"
         gcloud artifacts docker images list-vulnerabilities $(cat /workspace/scan_id.txt) \
         --format='value(vulnerability.effectiveSeverity)' | sort | uniq -c || true
-        
+
   - id: Check For Vulnerabilities within the Image
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: /bin/bash
@@ -44,7 +44,7 @@ steps:
       - -c
       - |
         docker push $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG
-        
+
   - id: Capture Image Digest Information
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: /bin/bash
@@ -53,11 +53,11 @@ steps:
       - |
         gcloud container images describe $LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG \
         --format='get(image_summary.digest)' > /workspace/digest.txt
-        
+
   - id: Change permissions on create_binauthz_policy.sh
     name: bash
     args: ['chmod', '+x', 'scripts/create_binauthz_policy.sh']
-    
+
   - id: Apply Binary Authorization Custom Policy for Image
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: '/bin/sh'
@@ -65,18 +65,6 @@ steps:
       - -c
       - |
         ./scripts/create_binauthz_policy.sh
-  
-  - id: Get Ingress Controller IP
-    name: 'gcr.io/cloud-builders/kubectl'
-    entrypoint: 'bash'
-    args:
-      - -c
-      - |
-        # Get the external IP of the ingress-nginx service
-        # Write the IP address directly to a file
-        kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}' > /workspace/ingress_ip.txt
-
-        echo "Extracted Ingress IP: ${_INGRESS_IP}"
 
   - id: Update DNS A Record
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -84,6 +72,14 @@ steps:
     args:
       - -c
       - |
+        # Wait for the IP address to be assigned before proceeding
+        echo "Waiting for Ingress IP..."
+        kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' --timeout=600s svc ingress-nginx-controller -n ingress-nginx
+
+        # Retrieve the IP address and store it in a shell variable
+        INGRESS_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "Extracted Ingress IP: ${INGRESS_IP}"
+
         # Update the A record for the specified domain
         gcloud dns record-sets transaction start --zone=infotechnologies-zone --project=divijesh-project
 
@@ -91,7 +87,7 @@ steps:
         gcloud dns record-sets transaction remove --name="infotechnologies.org." --type=A --zone=infotechnologies-zone --project=divijesh-project
 
         # Add the new A record with the ingress IP
-        gcloud dns record-sets transaction add --name="infotechnologies.org." --type=A --ttl=300 --zone=infotechnologies-zone --project=divijesh-project --data="${_INGRESS_IP}"
+        gcloud dns record-sets transaction add --name="infotechnologies.org." --type=A --ttl=300 --zone=infotechnologies-zone --project=divijesh-project --data="${INGRESS_IP}"
 
         gcloud dns record-sets transaction execute --zone=infotechnologies-zone --project=divijesh-project
 
@@ -106,15 +102,11 @@ steps:
   - id: Promote/deploy cloud deploy release to next stage ie staging
     name: gcr.io/cloud-builders/gcloud
     args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=staging']
-    
+
   - id: Promote/deploy cloud deploy release to next stage ie prod
     name: gcr.io/cloud-builders/gcloud
     args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=prod']
 images: ['$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG']
-    
-  substitutions:
-    _INGRESS_IP: '$(cat /workspace/ingress_ip.txt)'
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  dynamicSubstitutions: true  
