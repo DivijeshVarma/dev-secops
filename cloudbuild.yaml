@@ -67,35 +67,35 @@ steps:
         ./scripts/create_binauthz_policy.sh
   
   - id: Get Ingress Controller IP
-  name: 'gcr.io/cloud-builders/kubectl'
-  entrypoint: 'bash'
-  args:
-    - -c
-    - |
-      # Get the external IP of the ingress-nginx service
-      INGRESS_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      echo "INGRESS_IP=${INGRESS_IP}" > /workspace/ingress_ip.txt
-      echo "Extracted Ingress IP: ${INGRESS_IP}"
+    name: 'gcr.io/cloud-builders/kubectl'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        # Get the external IP of the ingress-nginx service
+        INGRESS_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "INGRESS_IP=${INGRESS_IP}" > /workspace/ingress_ip.txt
+        echo "Extracted Ingress IP: ${INGRESS_IP}"
 
   - id: Update DNS A Record
-  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: 'bash'
-  args:
-    - -c
-    - |
-      # Retrieve the IP address from the file
-      INGRESS_IP=$(cat /workspace/ingress_ip.txt | cut -d'=' -f2)
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        # Retrieve the IP address from the file
+        INGRESS_IP=$(cat /workspace/ingress_ip.txt | cut -d'=' -f2)
 
-      # Update the A record for the specified domain
-      gcloud dns record-sets transaction start --zone=infotechnologies-zone --project=divijesh-project
+        # Update the A record for the specified domain
+        gcloud dns record-sets transaction start --zone=infotechnologies-zone --project=divijesh-project
 
-      # Remove any existing A records for the root domain
-      gcloud dns record-sets transaction remove --name="infotechnologies.org." --type=A --zone=infotechnologies-zone --project=divijesh-project
+        # Remove any existing A records for the root domain
+        gcloud dns record-sets transaction remove --name="infotechnologies.org." --type=A --zone=infotechnologies-zone --project=divijesh-project
 
-      # Add the new A record with the ingress IP
-      gcloud dns record-sets transaction add --name="infotechnologies.org." --type=A --ttl=300 --zone=infotechnologies-zone --project=divijesh-project --data="${INGRESS_IP}"
+        # Add the new A record with the ingress IP
+        gcloud dns record-sets transaction add --name="infotechnologies.org." --type=A --ttl=300 --zone=infotechnologies-zone --project=divijesh-project --data="${INGRESS_IP}"
 
-      gcloud dns record-sets transaction execute --zone=infotechnologies-zone --project=divijesh-project
+        gcloud dns record-sets transaction execute --zone=infotechnologies-zone --project=divijesh-project
 
   - id: Create a cloud deploy release and this will also deploy the release to the first target ie test
     name: 'gcr.io/cloud-builders/gcloud'
