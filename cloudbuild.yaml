@@ -75,20 +75,29 @@ steps:
       - |
         gcloud deploy releases create r-$REVISION_ID --project=$PROJECT_ID --region=$LOCATION --delivery-pipeline=ci-cd-test --images=my-app-image=$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd@$(cat /workspace/digest.txt)
 
-  - id: Run OWASP ZAP Scan on Staging
+  - id: Run OWASP ZAP Scan
     name: 'ghcr.io/zaproxy/zaproxy'
     entrypoint: 'zap-baseline.py'
     args:
       - '-t'
       - 'http://infotechnologies.org'  # <-- Replace this with the actual staging URL
       - '-r'
-      - 'zap-report.html'
+      - '/zap/wrk/zap-report.html'
+    volumes:
+      - name: 'zap-report'
+        path: /zap/wrk
 
   - id: Upload ZAP Report to Cloud Storage
     name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'zap-report.html', 'gs://owaspzap/zap-reports']
+    args: 
+      - 'cp'
+      - '/workspace/zap-report.html'  # this maps to the same file
+      - 'gs://owaspzap/zap-reports'
+    volumes:
+      - name: 'zap-report'
+        path: /workspace
     waitFor:
-      - Run OWASP ZAP Scan on Staging
+      - Run OWASP ZAP Scan
 
   - id: Promote/deploy cloud deploy release to next stage ie staging
     name: gcr.io/cloud-builders/gcloud
