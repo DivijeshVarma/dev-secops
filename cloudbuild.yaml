@@ -83,8 +83,6 @@ steps:
       - 'http://infotechnologies.org'  # <-- Replace this with the actual staging URL
       - '-r'
       - 'zap-report.html'
-    waitFor:
-      - Promote/deploy cloud deploy release to next stage ie staging
 
   - id: Upload ZAP Report to Cloud Storage
     name: 'gcr.io/cloud-builders/gsutil'
