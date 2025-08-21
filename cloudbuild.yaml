@@ -82,23 +82,23 @@ steps:
       - '-t'
       - 'http://infotechnologies.org'  # <-- Replace this with the actual staging URL
       - '-r'
-      - '/tmp/zap/zap-report.html'
+      - '/zap/wrk/zap-report.html'
     env:
-      - HOME=/tmp/zap 
+      - HOME=/zap/wrk 
     volumes:
-      - name: 'zap-report'
-        path: /tmp/zap
-    dir: /tmp/zap
+      - name: zap-volume
+        path: /zap/wrk
+    dir: /zap/wrk
         
   - id: Upload ZAP Report to Cloud Storage
     name: 'gcr.io/cloud-builders/gsutil'
     args: 
       - 'cp'
-      - '/tmp/zap/zap-report.html'  # this maps to the same file
+      - '/zap/wrk/zap-report.html'  # this maps to the same file
       - 'gs://owaspzap/zap-reports'
     volumes:
-      - name: 'zap-report'
-        path: /tmp/zap
+      - name: zap-volume
+        path: /zap/wrk
     waitFor:
       - Run OWASP ZAP Scan
 
