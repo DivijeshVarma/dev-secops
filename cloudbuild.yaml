@@ -95,7 +95,7 @@ steps:
       - 'gs://owaspzap/zap-reports'
     volumes:
       - name: 'zap-report'
-        path: /workspace
+        path: /zap/output
     waitFor:
       - Run OWASP ZAP Scan
 
