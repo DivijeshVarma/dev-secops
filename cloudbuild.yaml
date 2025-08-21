@@ -88,6 +88,7 @@ steps:
     volumes:
       - name: zap-volume
         path: /zap/wrk
+        readOnly: false
     dir: /zap/wrk
         
   - id: Upload ZAP Report to Cloud Storage
@@ -99,6 +100,7 @@ steps:
     volumes:
       - name: zap-volume
         path: /zap/wrk
+        readOnly: false
     waitFor:
       - Run OWASP ZAP Scan
 
@@ -110,11 +112,6 @@ steps:
     name: gcr.io/cloud-builders/gcloud
     args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=prod']
 images: ['$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd:$_VERSION_TAG']
-
-volumes:
-  - name: zap-volume
-    path: /zap/wrk
-    readOnly: false 
 
 options:
   logging: CLOUD_LOGGING_ONLY
