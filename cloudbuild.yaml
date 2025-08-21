@@ -83,6 +83,7 @@ steps:
       - 'http://infotechnologies.org'  # <-- Replace this with the actual staging URL
       - '-r'
       - '/zap/wrk/zap-report.html'
+    dir: /zap/wrk  # <-- Important: set working dir to writable volume  
     volumes:
       - name: 'zap-report'
         path: /zap/wrk
