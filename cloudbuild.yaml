@@ -76,7 +76,7 @@ steps:
         gcloud deploy releases create r-$REVISION_ID --project=$PROJECT_ID --region=$LOCATION --delivery-pipeline=ci-cd-test --images=my-app-image=$LOCATION-docker.pkg.dev/$PROJECT_ID/$_CONTAINER_REPO_NAME/cd@$(cat /workspace/digest.txt)
 
   - id: Run OWASP ZAP Scan on Staging
-    name: 'owasp/zap2docker-stable'
+    name: 'ghcr.io/zaproxy/zaproxy'
     entrypoint: 'zap-baseline.py'
     args:
       - '-t'
