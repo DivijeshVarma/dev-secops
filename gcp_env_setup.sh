@@ -46,6 +46,12 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${APP_SPOT}" \
     --role='roles/cloudkms.signerVerifier'
 
+# Container Analysis Admin 
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+    --member="serviceAccount:${APP_SPOT}" \
+    --role='roles/containeranalysis.admin'
+
+
 #Add the following: "Artifact Registry Reader", "Cloud Deploy Runner" and "Kubernetes Engine Admin" IAM Role to the Compute Engine Service Account
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" --role='roles/artifactregistry.reader'
