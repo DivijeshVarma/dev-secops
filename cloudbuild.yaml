@@ -83,6 +83,8 @@ steps:
       - 'http://infotechnologies.org'  # <-- Replace this with the actual staging URL
       - '-r'
       - '/zap/wrk/zap-report.html'
+    env:
+      - HOME=/zap/wrk  # 👈 override HOME so ZAP doesn’t use /builder/home
     dir: /zap/wrk  # <-- Important: set working dir to writable volume  
     volumes:
       - name: 'zap-report'
@@ -92,7 +94,7 @@ steps:
     name: 'gcr.io/cloud-builders/gsutil'
     args: 
       - 'cp'
-      - '/workspace/zap-report.html'  # this maps to the same file
+      - '/zap/output/zap-report.html'  # this maps to the same file
       - 'gs://owaspzap/zap-reports'
     volumes:
       - name: 'zap-report'
