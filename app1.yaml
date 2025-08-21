@@ -29,20 +29,18 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-  # The service type is set to ClusterIP because the Ingress
-  # will handle the external exposure.
-  type: ClusterIP
+  type: ClusterIP  # Change LoadBalancer to ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-app-ingress
   annotations:
-    # This annotation tells the NGINX Ingress Controller to manage this Ingress.
+    # This annotation is important for NGINX to properly handle the ingress
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-  - host: "infotechnologies.org" # 👈 Change this to your desired domain
+  - host: "infotechnologies.org" # Replace with your own domain
     http:
       paths:
       - path: /
@@ -52,3 +50,4 @@ spec:
             name: my-service
             port:
               number: 80
+
