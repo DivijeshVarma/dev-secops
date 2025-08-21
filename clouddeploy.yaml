@@ -19,7 +19,7 @@ metadata:
  name: test
 description: development cluster
 gke:
- cluster: projects/cicd6789/locations/asia-south1/clusters/test
+ cluster: projects/cicdprojects/locations/asia-south1/clusters/test
 ---
 
 
@@ -29,7 +29,7 @@ metadata:
  name: staging
 description: staging cluster
 gke:
- cluster: projects/cicd6789/locations/asia-south1/clusters/staging
+ cluster: projects/cicdprojects/locations/asia-south1/clusters/staging
 ---
 
 apiVersion: deploy.cloud.google.com/v1
@@ -39,4 +39,4 @@ metadata:
 description: production cluster
 requireApproval: true
 gke:
- cluster: projects/cicd6789/locations/asia-south1/clusters/prod
+ cluster: projects/cicdprojects/locations/asia-south1/clusters/prod

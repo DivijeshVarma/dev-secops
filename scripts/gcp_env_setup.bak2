@@ -14,11 +14,12 @@ gcloud services enable containerscanning.googleapis.com
 gcloud services enable clouddeploy.googleapis.com
 gcloud services enable cloudkms.googleapis.com
 gcloud services enable cloudfunctions.googleapis.com
+gcloud services enable websecurityscanner.googleapis.com
 
 #GCP Project Variables
 LOCATION=asia-south1
-PROJECT_ID=cicdprojects
-PROJECT_NUMBER=226630089212
+PROJECT_ID=cicd6789
+PROJECT_NUMBER=533446542117
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
@@ -45,6 +46,12 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${APP_SPOT}" \
     --role='roles/cloudkms.signerVerifier'
 
+# Container Analysis Admin 
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+    --member="serviceAccount:${APP_SPOT}" \
+    --role='roles/containeranalysis.admin'
+
+
 #Add the following: "Artifact Registry Reader", "Cloud Deploy Runner" and "Kubernetes Engine Admin" IAM Role to the Compute Engine Service Account
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" --role='roles/artifactregistry.reader'
@@ -54,6 +61,20 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" --role='roles/container.admin'
+
+# Web Security Scanner Service Account Variables
+WSS_SA_NAME="web-security-scanner-sa"
+WSS_SA_EMAIL="${WSS_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+
+# Create a dedicated service account for Web Security Scanner
+gcloud iam service-accounts create "${WSS_SA_NAME}" \
+    --description="Service account for running Web Security Scanner" \
+    --display-name="Web Security Scanner SA"
+
+# Grant the Web Security Scanner Editor role to the new service account
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${WSS_SA_EMAIL}" \
+    --role="roles/websecurityscanner.editor"
 
 #Create a Default VPC and its embedded Subnet. This is under the assumption that the new GCP project did NOT automatically create a default VPC and Subnet.
 #If the creation of a default VPC is not needed, comment out the following 3 commands.
@@ -162,7 +183,7 @@ gcloud container clusters create test \
     --labels=app=vulnapp-test \
     --subnetwork=default \
     --disk-size=20
-
+ 
 STATIC_IP=$(gcloud compute addresses create ingress-ip --region=$LOCATION --project=$PROJECT_ID --format='value(address)')
 
 #GKE Cluster for Staging environment
@@ -207,3 +228,4 @@ helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.git
 gcloud container clusters get-credentials prod --region $LOCATION --project $PROJECT_ID
 
 helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+
