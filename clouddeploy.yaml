@@ -40,4 +40,3 @@ description: production cluster
 requireApproval: true
 gke:
  cluster: projects/cicd5678/locations/asia-south1/clusters/prod
-
