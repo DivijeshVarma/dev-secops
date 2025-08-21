@@ -14,11 +14,12 @@ gcloud services enable containerscanning.googleapis.com
 gcloud services enable clouddeploy.googleapis.com
 gcloud services enable cloudkms.googleapis.com
 gcloud services enable cloudfunctions.googleapis.com
+gcloud services enable websecurityscanner.googleapis.com
 
 #GCP Project Variables
 LOCATION=asia-south1
-PROJECT_ID=cicd5678
-PROJECT_NUMBER=825947679779
+PROJECT_ID=cicd6789
+PROJECT_NUMBER=533446542117
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
@@ -54,6 +55,20 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" --role='roles/container.admin'
+
+# Web Security Scanner Service Account Variables
+WSS_SA_NAME="web-security-scanner-sa"
+WSS_SA_EMAIL="${WSS_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+
+# Create a dedicated service account for Web Security Scanner
+gcloud iam service-accounts create "${WSS_SA_NAME}" \
+    --description="Service account for running Web Security Scanner" \
+    --display-name="Web Security Scanner SA"
+
+# Grant the Web Security Scanner Editor role to the new service account
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${WSS_SA_EMAIL}" \
+    --role="roles/websecurityscanner.editor"
 
 #Create a Default VPC and its embedded Subnet. This is under the assumption that the new GCP project did NOT automatically create a default VPC and Subnet.
 #If the creation of a default VPC is not needed, comment out the following 3 commands.
