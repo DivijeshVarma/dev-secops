@@ -17,8 +17,8 @@ gcloud services enable cloudfunctions.googleapis.com
 
 #GCP Project Variables
 LOCATION=asia-south1
-PROJECT_ID=cicdprojects
-PROJECT_NUMBER=226630089212
+PROJECT_ID=projectowasp
+PROJECT_NUMBER=266994262730
 CLOUD_BUILD_SA_EMAIL="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 BINAUTHZ_SA_EMAIL="service-${PROJECT_NUMBER}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 APP_SPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
