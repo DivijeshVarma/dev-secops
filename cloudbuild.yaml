@@ -84,7 +84,6 @@ steps:
     entrypoint: '/bin/sh'
     args: ['scripts/ZAP_OWASP_Run.sh']
 
-
   - id: Promote/deploy cloud deploy release to next stage ie staging
     name: gcr.io/cloud-builders/gcloud
     args: ['deploy', 'releases', 'promote', '--release=r-$REVISION_ID','--project=$PROJECT_ID','--region=$LOCATION','--delivery-pipeline=ci-cd-test', '--to-target=staging']
