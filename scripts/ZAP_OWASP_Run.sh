@@ -10,7 +10,7 @@ ZAP_CONFIG_FILE="zapAlerts.config"
 # the same user ID as the Cloud Build process.
 docker run --rm -v $(pwd):/zap/wrk/:rw \
     --user $(id -u):$(id -g) \
-    owasp/zap2docker-stable \
+    ghcr.io/zaproxy/zaproxy:stable \
     zap-baseline.py -t $ZAP_TARGET_URL -g /zap/wrk/$ZAP_CONFIG_FILE
 
 # Edit the generated config file to ignore specific warnings.
