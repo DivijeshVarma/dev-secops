@@ -25,7 +25,7 @@ sed -i 's/10011\tWARN/10011\tIGNORE/' $ZAP_CONFIG_FILE
 # We also use the same user to prevent permission issues.
 docker run --rm -v $(pwd):/zap/wrk/:rw \
     --user $(id -u):$(id -g) \
-    owasp/zap2docker-stable \
+    ghcr.io/zaproxy/zaproxy:stable \
     zap-baseline.py -t $ZAP_TARGET_URL -c /zap/wrk/$ZAP_CONFIG_FILE -T 5
 
 # The exit code from the ZAP scan will determine the build status.
